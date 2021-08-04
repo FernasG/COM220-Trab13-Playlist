@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import pickle
 
 class Artista:
     def __init__(self, nome):

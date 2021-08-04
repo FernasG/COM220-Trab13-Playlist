@@ -13,6 +13,7 @@ class LimitePrincipal:
         self.artistaMenu = tk.Menu(self.menubar)
         self.albumMenu = tk.Menu(self.menubar)
         self.playlistMenu = tk.Menu(self.menubar)
+        self.sairMenu = tk.Menu(self.menubar)
 
         self.artistaMenu.add_command(label="Cadastrar", command=self.controle.cadastrarArtista)
         self.artistaMenu.add_command(label="Consultar", command=self.controle.consultarArtista)
@@ -25,6 +26,9 @@ class LimitePrincipal:
         self.playlistMenu.add_command(label="Cadastrar", command=self.controle.cadastrarPlaylist)
         self.playlistMenu.add_command(label="Consultar", command=self.controle.consultarPlaylist)
         self.menubar.add_cascade(label="Playlist", menu=self.playlistMenu)
+
+        self.sairMenu.add_command(label="Salva", command=self.controle.salvaDados)
+        self.menubar.add_cascade(label="Sair", menu=self.sairMenu)
 
         self.root.config(menu=self.menubar)
 
@@ -40,6 +44,12 @@ class ControlePrincipal:
         self.root.title("Trab13 - Playlist")
 
         self.root.mainloop()
+
+    def salvaDados(self):
+        self.ctrlArtista.salvaArtista()
+        self.ctrlAlbum.salvaAlbum()
+        self.ctrlPlaylist.salvaPlaylist()
+        self.root.destroy()
     
     #   Artista
     def cadastrarArtista(self):
@@ -57,7 +67,7 @@ class ControlePrincipal:
 
     #   Playlist
     def cadastrarPlaylist(self):
-        self.ctrlPlaylist.cadastrarPlaylist(self.ctrlArtista)
+        self.ctrlPlaylist.cadastrarPlaylist(self.ctrlArtista, self.ctrlAlbum)
 
     def consultarPlaylist(self):
         self.ctrlPlaylist.consultarPlaylist()

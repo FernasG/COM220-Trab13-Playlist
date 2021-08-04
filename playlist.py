@@ -1,12 +1,17 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
+import pickle
 
 class Playlist:
-    def __init__(self, nome):
+    def __init__(self, nome, musicas = []):
         self.__nome = nome
+        self.__musicas = musicas
     
     def getNome(self):
         return self.__nome
+    
+    def getMusicas(self):
+        return self.__musicas
 
 class LimiteCadastrarPlaylist(tk.Toplevel):
     def __init__(self, controle, artistas):
@@ -49,8 +54,8 @@ class LimiteCadastrarPlaylist(tk.Toplevel):
         self.comboboxArtistaValue = tk.StringVar()
         self.comboboxArtista = ttk.Combobox(self.frameArtista, textvariable=self.comboboxArtistaValue)
         self.comboboxArtista['values'] = artistas
-        self.comboboxArtista.bind("<<ComboboxSelect>>", controle.selectHandler)
         self.comboboxArtista.pack(side="left")
+        self.comboboxArtista.bind("<<ComboboxSelected>>", controle.selectHandler)
 
         self.labelFaixas = tk.Label(self.frameFaixas, text="Lista de Músicas:")
         self.labelFaixas.pack()
@@ -61,10 +66,13 @@ class LimiteCadastrarPlaylist(tk.Toplevel):
         self.buttonSubmit.pack(side="left")
         self.buttonSubmit.bind("<Button>", controle.handleCadastrarPlaylist)
 
+        self.buttonAddSong = tk.Button(self.frameButton, text="Adicionar")
+        self.buttonAddSong.pack(side="left")
+        self.buttonAddSong.bind("<Button>", controle.adicionarMusica)
+
         self.buttonClose = tk.Button(self.frameButton, text="Cancelar")
         self.buttonClose.pack(side="left")
         self.buttonClose.bind("<Button>", controle.cancelHandler)
-
 
 class LimiteConsultaPlaylist(tk.Toplevel):
     def __init__(self, controle):
@@ -95,6 +103,8 @@ class LimiteConsultaPlaylist(tk.Toplevel):
 class CtrlPlaylist:
     def __init__(self):
         self.listaPlaylists = []
+        self.listaMusicasPlaylist = []
+        self.musicasAux = []
 
     def cancelHandler(self, event = None):
         self.limiteIns.destroy()
@@ -105,33 +115,43 @@ class CtrlPlaylist:
     def consultarPlaylist(self):
         self.limiteIns = LimiteConsultaPlaylist(self)
 
-    def selectHandler(self):
+    def salvaPlaylist(self):
+        if len(self.listaPlaylist) != 0:
+            with open("playlist.pickle","wb") as f:
+                pickle.dump(self.listaPlaylist, f)
+
+
+    def adicionarMusica(self, event):
+        selectedSong = self.limiteIns.listboxSongs.get(tk.ACTIVE)
+
+        if selectedSong:
+            songName = selectedSong[selectedSong.find("- ")+2:]
+
+            for faixa in self.musicasAux:
+                if faixa.getTitulo() == selectedSong:
+                    self.listaMusicasPlaylist.append(faixa)
+                    self.mostraJanela('Sucesso', 'Música adicionada com sucesso!')
+
+    def selectHandler(self, event):
         albuns = []
         artistaSelecionado = self.limiteIns.comboboxArtistaValue.get()
+        self.limiteIns.listboxSongs.delete(0, tk.END)
 
-        for artista in self.limiteIns.ctrlArtista.listaArtistas:
+        for artista in self.ctrlArtista.listaArtistas:
             if artista.getNome() == artistaSelecionado:
-                
-                for album in self.limiteIns.ctrlAlbum.listaAlbuns:
+                for album in self.ctrlAlbum.listaAlbuns:
                     if album.getArtista() == artista:
                         albuns.append(album)
-                    
+
                 for album in albuns:
                     for faixa in album.getFaixas():
-                        print(faixa)
+                        self.musicasAux.append(faixa)
                         self.limiteIns.listboxSongs.insert(tk.END, f'{faixa.getNroFaixa()} - {faixa.getTitulo()}')
 
-    # def adicionarMusica(self, event):
-    #     songName = simpledialog.askstring('Música', 'Nome: ')
-
-    #     if songName:
-    #         self.limiteIns.albumId += 1
-    #         self.limiteIns.listaFaixas.append(Musica(songName, self.limiteIns.albumId))
-    #         self.limiteIns.listboxSongs.insert(tk.END, f'{self.limiteIns.albumId} - {songName}')
-
-    def cadastrarPlaylist(self, ctrlArtista):
+    def cadastrarPlaylist(self, ctrlArtista, ctrlAlbum):
         listaArtistas = []
         self.ctrlArtista = ctrlArtista
+        self.ctrlAlbum = ctrlAlbum
 
         for artista in self.ctrlArtista.listaArtistas:
             listaArtistas.append(artista.getNome())
@@ -143,23 +163,18 @@ class CtrlPlaylist:
     
     def handleCadastrarPlaylist(self, event):
         titulo = self.limiteIns.inputTitulo.get()
-        artistaName = self.limiteIns.comboboxArtistaValue.get()
-        faixas = self.limiteIns.listaFaixas
 
-        if titulo and artistaName and faixas:
-            found = None
-            for artista in self.ctrlArtista.listaArtistas:
-                if artista.getNome() == artistaName:
-                    found = artista
-                    break
+        if titulo and self.listaMusicasPlaylist:
+            novaPlaylist = Playlist(titulo, self.listaMusicasPlaylist)
 
-            if found:
-                novaPlaylist = Playlist(titulo, found, faixas)
-                self.listaAlbuns.append(novaPlaylist)
+            self.listaPlaylists.append(novaPlaylist)
+            self.listaMusicasPlaylist = []
+            self.musicasAux = []
 
-                self.mostraJanela('Sucesso', 'Playlist cadastrado com sucesso!')
-                self.cancelHandler()
-            else:
-                self.mostraJanela('Erro', 'Ocorreu um erro ao tentar criar a playlist')
+            self.mostraJanela('Sucesso', 'Playlist cadastrada com sucesso!')
+
         else:
-            self.mostraJanela('Erro', 'Dado inválido ou não preenchido.')
+            self.mostraJanela('Erro', 'Campos não preenchidos ou inválidos.')
+
+
+

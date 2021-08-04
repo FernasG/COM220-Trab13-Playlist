@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
+import pickle
 
 class Album:
     def __init__(self, titulo, ano, artista, faixas):
@@ -34,7 +35,7 @@ class Musica:
 class LimiteCadastrarAlbum(tk.Toplevel):
     def __init__(self, controle, artistas):
         tk.Toplevel.__init__(self)
-        self.geometry('400x300')
+        self.geometry('400x400')
         self.title('Álbum - Cadastrar')
         self.controle = controle
         self.albumId = 0
