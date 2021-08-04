@@ -45,6 +45,7 @@ class LimiteCadastrarAlbum(tk.Toplevel):
         self.frameAno = tk.Frame(self)
         self.frameFaixas = tk.Frame(self)
         self.frameButton = tk.Frame(self)
+
         self.frameTitulo.pack()
         self.frameArtista.pack()
         self.frameAno.pack()
@@ -82,7 +83,7 @@ class LimiteCadastrarAlbum(tk.Toplevel):
 
         self.buttonAddSong = tk.Button(self.frameButton, text="Adicionar Música")
         self.buttonAddSong.pack(side="left")
-        self.buttonAddSong.bind("<Button>", controle.addSongHandler)
+        self.buttonAddSong.bind("<Button>", controle.adicionarMusica)
 
         self.buttonClose = tk.Button(self.frameButton, text="Cancelar")
         self.buttonClose.pack(side="left")
@@ -118,6 +119,23 @@ class CtrlAlbum:
     def __init__(self):
         self.listaAlbuns = []
 
+    def cancelHandler(self, event = None):
+        self.limiteIns.destroy()
+
+    def mostraJanela(self, titulo, msg):
+        messagebox.showinfo(titulo, msg)
+
+    def consultarAlbum(self):
+        self.limiteIns = LimiteConsultaAlbum(self)
+
+    def adicionarMusica(self, event):
+        songName = simpledialog.askstring('Música', 'Nome: ')
+
+        if songName:
+            self.limiteIns.albumId += 1
+            self.limiteIns.listaFaixas.append(Musica(songName, self.limiteIns.albumId))
+            self.limiteIns.listboxSongs.insert(tk.END, f'{self.limiteIns.albumId} - {songName}')
+
     def cadastrarAlbum(self, ctrlArtista):
         listaArtistas = []
         self.ctrlArtista = ctrlArtista
@@ -129,9 +147,6 @@ class CtrlAlbum:
             self.limiteIns = LimiteCadastrarAlbum(self, listaArtistas)
         else:
             self.mostraJanela('Erro', 'Cadastre um artista antes de cadastrar um álbum.')
-    
-    def consultarAlbum(self):
-        self.limiteIns = LimiteConsultaAlbum(self)
 
     def handleCadastrarAlbum(self, event):
         titulo = self.limiteIns.inputTitulo.get()
@@ -179,17 +194,3 @@ class CtrlAlbum:
                 self.mostraJanela('Erro', 'Álbum não encontrado.')
         else:
             self.mostraJanela('Erro', 'Titulo de álbum vázio ou incorreto.')
-
-    def cancelHandler(self, event = None):
-        self.limiteIns.destroy()
-
-    def addSongHandler(self, event):
-        songName = simpledialog.askstring('Música', 'Nome: ')
-
-        if songName:
-            self.limiteIns.albumId += 1
-            self.limiteIns.listaFaixas.append(Musica(songName, self.limiteIns.albumId))
-            self.limiteIns.listboxSongs.insert(tk.END, f'{self.limiteIns.albumId} - {songName}')
-
-    def mostraJanela(self, titulo, msg):
-        messagebox.showinfo(titulo, msg)

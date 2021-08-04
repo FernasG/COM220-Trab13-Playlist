@@ -65,6 +65,12 @@ class CtrlArtista:
     def __init__(self):
         self.listaArtistas = [Artista('Vários Artistas')]
 
+    def cancelHandler(self, event = None):
+        self.limiteIns.destroy()
+
+    def mostraJanela(self, titulo, msg):
+        messagebox.showinfo(titulo, msg)
+
     def cadastrarArtista(self):
         self.limiteIns = LimiteCadastraArtista(self)
 
@@ -111,9 +117,3 @@ class CtrlArtista:
                     albumMsg += auxMsg
 
             self.mostraJanela('Sucesso', f'Artista: {found.getNome()}\nAlbuns: {albumMsg}')
-
-    def cancelHandler(self, event = None):
-        self.limiteIns.destroy()
-
-    def mostraJanela(self, titulo, msg):
-        messagebox.showinfo(titulo, msg)
