@@ -17,6 +17,7 @@ class LimitePrincipal:
         self.menubar.add_cascade(label="Artista", menu=self.artistaMenu)
 
         self.albumMenu.add_command(label="Cadastrar", command=self.controle.cadastrarAlbum)
+        self.albumMenu.add_command(label="Consultar", command=self.controle.consultarAlbum)
         self.menubar.add_cascade(label="Álbum", menu=self.albumMenu)
 
         self.root.config(menu=self.menubar)
@@ -38,10 +39,13 @@ class ControlePrincipal:
         self.ctrlArtista.cadastrarArtista()
     
     def consultarArtista(self):
-        self.ctrlArtista.consultarArtista()
+        self.ctrlArtista.consultarArtista(self.ctrlAlbum)
 
     def cadastrarAlbum(self):
-        self.ctrlAlbum.cadastarAlbum()
+        self.ctrlAlbum.cadastrarAlbum(self.ctrlArtista)
+
+    def consultarAlbum(self):
+        self.ctrlAlbum.consultarAlbum()
 
 if __name__=="__main__":
     c = ControlePrincipal()

@@ -35,11 +35,12 @@ class LimiteCadastraArtista(tk.Toplevel):
         self.buttonClose.bind("<Button>", controle.cancelHandler)
 
 class LimiteConsultaArtista(tk.Toplevel):
-    def __init__(self, controle):
+    def __init__(self, controle, ctrlAlbum):
         tk.Toplevel.__init__(self)
         self.geometry('200x70')
         self.title('Artista - Consultar')
         self.controle = controle
+        self.ctrlAlbum = ctrlAlbum
 
         self.frameNome = tk.Frame(self)
         self.frameButton = tk.Frame(self)
@@ -62,13 +63,13 @@ class LimiteConsultaArtista(tk.Toplevel):
 
 class CtrlArtista:
     def __init__(self):
-        self.listaArtistas = []
+        self.listaArtistas = [Artista('Vários Artistas')]
 
     def cadastrarArtista(self):
         self.limiteIns = LimiteCadastraArtista(self)
 
-    def consultarArtista(self):
-        self.limiteIns = LimiteConsultaArtista(self)
+    def consultarArtista(self, ctrlAlbum):
+        self.limiteIns = LimiteConsultaArtista(self, ctrlAlbum)
 
     def handleCadastrarArtista(self, event):
         nome = self.limiteIns.inputNome.get()
@@ -83,6 +84,7 @@ class CtrlArtista:
     def handleConsultarArtista(self, event):
         nome = self.limiteIns.inputNome.get()
         found = None
+        albuns = []
 
         if nome:
             for artista in self.listaArtistas:
@@ -91,7 +93,24 @@ class CtrlArtista:
                     break
 
         if found:
-            self.mostraJanela('Sucesso', f'Artista: {found.getNome()}\nAlbuns: ')
+            albumMsg = ''
+            
+            for album in self.limiteIns.ctrlAlbum.listaAlbuns:
+                if album.getArtista() == found:
+                    albuns.append(album)
+                
+            if not albuns:
+                albumMsg = '\nNenhum álbum encontrado.'
+            else:
+                for album in albuns:
+                    auxMsg = f'\nTitulo: {album.getTitulo()}\n'
+
+                    for faixa in album.getFaixas():
+                        auxMsg += f'{faixa.getNroFaixa()} - {faixa.getTitulo()}\n'
+                    
+                    albumMsg += auxMsg
+
+            self.mostraJanela('Sucesso', f'Artista: {found.getNome()}\nAlbuns: {albumMsg}')
 
     def cancelHandler(self, event = None):
         self.limiteIns.destroy()
